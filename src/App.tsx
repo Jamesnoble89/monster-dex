@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { ChangeEvent } from "react";
+import { CardList } from "./components/card-list/card-list.component";
+import "./App.css";
+import { Component } from "react";
+import {SearchBox}from "./components/search-box/search-box.component"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+interface IProps {}
+interface IState {
+  monsters: Array<{ name: string; id: string; email: string }>;
+  searchField: String;
+}
+class App extends Component<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
+
+    this.state = {
+      monsters: [],
+      searchField: "",
+    };
+  }
+
+  componentDidMount() {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((users) => this.setState({ monsters: users }));
+  }
+  
+  handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({searchField: e.currentTarget.value})
+  }
+
+  render() {
+    const {monsters, searchField} = this.state
+    const filteredMonsters = monsters.filter(monster =>
+       monster.name.toLowerCase().includes(searchField.toLowerCase()))
+    return (
+      <div className="App">
+        <h1>Monsters Dex</h1>
+        <SearchBox 
+          placeholder="Search Monsters"
+          handleChange={this.handleChange}
+        />
+        <CardList monsters={filteredMonsters} />
+      </div>
+    );
+  }
 }
 
 export default App;
